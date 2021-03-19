@@ -4,7 +4,8 @@ import ultranest.stepsampler
 import time
 from taurex.optimizer import Optimizer
 import numpy as np
-
+from taurex.util.util import quantile_corner, \
+                                recursively_save_dict_contents_to_output
 class UltranestSampler(Optimizer):
 
     def __init__(self, 
@@ -14,7 +15,6 @@ class UltranestSampler(Optimizer):
                  dlogz=0.5,
                  dkl=0.5,
                  frac_remain=0.01,
-                 min_num_live_points=400,
                  cluster_num_live_points=40,
                  max_num_improvement_loops=-1,
                  stepsampler='default',
@@ -33,15 +33,14 @@ class UltranestSampler(Optimizer):
                  warmstart_max_tau=- 1):
         super().__init__('Ultranest', observed, model, sigma_fraction)
 
-        self.num_live_points = num_live_points
+        self.num_live_points = int(num_live_points)
         self.dlogz = dlogz
         self.dkl = dkl
         self.frac_remain = frac_remain
-        self.min_num_live_points = min_num_live_points
-        self.cluster_num_live_points = cluster_num_live_points
-        self.max_num_improvement_loops = max_num_improvement_loops
+        self.cluster_num_live_points = int(cluster_num_live_points)
+        self.max_num_improvement_loops = int(max_num_improvement_loops)
         self.stepsampler = stepsampler
-        self.nsteps = nsteps
+        self.nsteps = int(nsteps)
         self.step_scale = step_scale
         self.adaptive_nsteps = adaptive_nsteps
         self.region_filter = region_filter
@@ -53,9 +52,9 @@ class UltranestSampler(Optimizer):
         self.log_dir = log_dir
         self.num_test_samples = num_test_samples
         self.draw_multiple = draw_multiple
-        self.num_bootstraps = num_bootstraps
-        self.ndraw_min = ndraw_min
-        self.ndraw_max = ndraw_max
+        self.num_bootstraps = int(num_bootstraps)
+        self.ndraw_min = int(ndraw_min)
+        self.ndraw_max = int(ndraw_max)
         self.storage_backend = storage_backend
         self.warmstart_max_tau = warmstart_max_tau
 
@@ -86,7 +85,7 @@ class UltranestSampler(Optimizer):
 
             return np.array(cube)
 
-        sampler = ultranest.ReactiveNestedSampler(self.fit_latex,
+        sampler = ultranest.ReactiveNestedSampler(self.fit_names,
                                                   ultranest_loglike,
                                                   transform=ultranest_prior,
                                                   resume=self.resume,
@@ -126,11 +125,11 @@ class UltranestSampler(Optimizer):
                              )
         t1 = time.time()
 
-        self.warning("Time taken to run 'Ultranest' is %s seconds", timenestle)
+        self.warning("Time taken to run 'Ultranest' is %s seconds", t1-t0)
 
         self.warning('Fit complete.....')
 
-        self.ultranest_output = self.store_ultranest_output(res)
+        self.ultranest_output = self.store_ultranest_output(result)
 
     def store_ultranest_output(self, result):
         """
@@ -156,17 +155,18 @@ class UltranestSampler(Optimizer):
         ultranest_output['Stats']['Log-Evidence'] = result['logz']
         ultranest_output['Stats']['Log-Evidence-Error'] = result['logzerr']
         ultranest_output['Stats']['H'] = result['H']
-        ultranest_output['Stats']['Herror'] = result['Herror']
+        ultranest_output['Stats']['Herror'] = result['Herr']
 
         fit_param = self.fit_names
 
-        samples = result['samples']
-        weights = result['weights']
-
+        samples = result['weighted_samples']['points']
+        weights = result['weighted_samples']['weights']
+        logl = result['weighted_samples']['logl']
         mean, cov = result['posterior']['mean'], result['posterior']['stdev']
         ultranest_output['solution'] = {}
         ultranest_output['solution']['samples'] = samples
         ultranest_output['solution']['weights'] = weights
+        ultranest_output['solution']['logl'] = logl
         # ultranest_output['solution']['covariance'] = cov
         ultranest_output['solution']['fitparams'] = {}
 
@@ -199,6 +199,14 @@ class UltranestSampler(Optimizer):
     def get_weights(self, solution_idx):
         return self.ultranest_output['solution']['weights']
 
+    def write_fit(self, output):
+        fit = super().write_fit(output)
+
+        if self.ultranest_output:
+            recursively_save_dict_contents_to_output(
+                output, self.ultranest_output)
+
+        return fit
 
 
     def get_solution(self):
