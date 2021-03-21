@@ -208,6 +208,14 @@ class UltranestSampler(Optimizer):
 
         return fit
 
+    def chisq_trans(self, fit_params, data, datastd):
+        res = super().chisq_trans(fit_params, data, datastd)
+
+        if np.isnan(res):
+            return 1e20
+        
+        return res
+
 
     def get_solution(self):
         """
