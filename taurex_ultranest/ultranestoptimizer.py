@@ -19,7 +19,7 @@ class UltranestSampler(Optimizer):
                  max_num_improvement_loops=-1,
                  stepsampler='default',
                  nsteps=10,
-                 step_scale=100,
+                 step_scale=1.0,
                  adaptive_nsteps=False,
                  region_filter=False,
                  resume='subfolder', 
