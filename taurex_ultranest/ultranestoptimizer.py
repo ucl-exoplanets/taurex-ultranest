@@ -112,7 +112,7 @@ class UltranestSampler(Optimizer):
         if stepchoice is not None and stepchoice in sampler_choice:
             sampler.stepsampler = sampler_choice[stepchoice](int(self.nsteps),
                                                              scale=self.step_scale,
-                                                             adaptive_steps=self.adaptive_nsteps,
+                                                             adaptive_nsteps=self.adaptive_nsteps,
                                                              region_filter=self.region_filter)
         
         t0 = time.time()
