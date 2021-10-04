@@ -18,7 +18,7 @@ entry_points = {'taurex.plugins': 'ultranest = taurex_ultranest'}
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-version = "0.3.0-alpha"
+version = "0.4.0-alpha"
 
 setup(name='taurex_ultranest',
       author="Ahmed Faris Al-Refaie",
