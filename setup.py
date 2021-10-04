@@ -15,14 +15,31 @@ install_requires = ['taurex','ultranest', ]
 
 entry_points = {'taurex.plugins': 'ultranest = taurex_ultranest'}
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+version = "0.3.0-alpha"
+
 setup(name='taurex_ultranest',
       author="Ahmed Faris Al-Refaie",
       author_email="ahmed.al-refaie.12@ucl.ac.uk",
       license="BSD",
       description='Ultranest plugin for TauREx-3 ',
       packages=packages,
-      
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       entry_points=entry_points,
+      version=version,
+      keywords=['exoplanet',
+                'petitradtrans',
+                'taurex',
+                'chemistry'
+                'taurex',
+                'plugin',
+                'taurex3',
+                'petitradtrans',
+                'atmosphere',
+                'atmospheric'],
       provides=provides,
       requires=requires,
       install_requires=install_requires)
