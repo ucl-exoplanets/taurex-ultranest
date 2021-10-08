@@ -1,6 +1,6 @@
 # TauREx-Ultranest
 
-version 0.4.0-alpha
+version 0.5.0-alpha
 
 A plugin for [TauREx](https://github.com/ucl-exoplanets/TauREx3_public) 3.1 that provides the [Ultranest](https://johannesbuchner.github.io/UltraNest/index.html) sampler by Johannes Buchner for the retireval
 
